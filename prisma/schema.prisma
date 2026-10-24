@@ -1,0 +1,123 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/modules-system/prisma/generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model Articles {
+  id        Int       @id @default(autoincrement())
+  title     String?   @db.VarChar(255)
+  Content   String?   @db.Text
+  imageURL  String?   @db.VarChar(255)
+  views     Int       @default(0)
+  userId    Int?
+  deletedBy Int       @default(0)
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime? @db.Timestamp(0)
+  createdAt DateTime  @default(now()) @db.Timestamp(0)
+  updatedAt DateTime  @default(now()) @db.Timestamp(0)
+  Users     Users?    @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Articles_ibfk_1")
+
+  @@index([userId], map: "userId")
+}
+
+model ChatGroupMembers {
+  id          Int         @id @default(autoincrement())
+  userId      Int?
+  chatGroupId Int?
+  deletedBy   Int         @default(0)
+  isDeleted   Boolean     @default(false)
+  deletedAt   DateTime?   @db.Timestamp(0)
+  createdAt   DateTime    @default(now()) @db.Timestamp(0)
+  updatedAt   DateTime    @default(now()) @db.Timestamp(0)
+  Users       Users?      @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "ChatGroupMembers_ibfk_1")
+  ChatGroups  ChatGroups? @relation(fields: [chatGroupId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "ChatGroupMembers_ibfk_2")
+
+  @@index([chatGroupId], map: "chatGroupId")
+  @@index([userId], map: "userId")
+}
+
+model ChatGroups {
+  id               Int                @id @default(autoincrement())
+  name             String?            @db.VarChar(255)
+  ownerId          Int?
+  deletedBy        Int                @default(0)
+  isDeleted        Boolean            @default(false)
+  deletedAt        DateTime?          @db.Timestamp(0)
+  createdAt        DateTime           @default(now()) @db.Timestamp(0)
+  updatedAt        DateTime           @default(now()) @db.Timestamp(0)
+  ChatGroupMembers ChatGroupMembers[]
+  Users            Users?             @relation(fields: [ownerId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "ChatGroups_ibfk_1")
+  ChatMessages     ChatMessages[]
+
+  @@index([ownerId], map: "ownerId")
+}
+
+model ChatMessages {
+  id           Int         @id @default(autoincrement())
+  chatGroupId  Int?
+  userIdSender Int?
+  messageText  String?     @db.Text
+  deletedBy    Int         @default(0)
+  isDeleted    Boolean     @default(false)
+  deletedAt    DateTime?   @db.Timestamp(0)
+  createdAt    DateTime    @default(now()) @db.Timestamp(0)
+  updatedAt    DateTime    @default(now()) @db.Timestamp(0)
+  ChatGroups   ChatGroups? @relation(fields: [chatGroupId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "ChatMessages_ibfk_1")
+  Users        Users?      @relation(fields: [userIdSender], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "ChatMessages_ibfk_2")
+
+  @@index([chatGroupId], map: "chatGroupId")
+  @@index([userIdSender], map: "userIdSender")
+}
+
+model Foods {
+  id          Int       @id @default(autoincrement())
+  name        String?   @db.VarChar(255)
+  description String?   @default("Chưa có thông tin") @db.VarChar(255)
+  deletedBy   Int       @default(0)
+  isDeleted   Boolean   @default(false)
+  deletedAt   DateTime? @db.Timestamp(0)
+  createdAt   DateTime  @default(now()) @db.Timestamp(0)
+  updatedAt   DateTime  @default(now()) @db.Timestamp(0)
+  Orders      Orders[]
+}
+
+model Orders {
+  id        Int       @id @default(autoincrement())
+  userId    Int?
+  foodId    Int?
+  deletedBy Int       @default(0)
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime? @db.Timestamp(0)
+  createdAt DateTime  @default(now()) @db.Timestamp(0)
+  updatedAt DateTime  @default(now()) @db.Timestamp(0)
+  Users     Users?    @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Orders_ibfk_1")
+  Foods     Foods?    @relation(fields: [foodId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Orders_ibfk_2")
+
+  @@index([foodId], map: "foodId")
+  @@index([userId], map: "userId")
+}
+
+model Users {
+  id               Int                @id @default(autoincrement())
+  email            String             @unique(map: "email") @db.VarChar(255)
+  fullName         String?            @db.VarChar(255)
+  avatar           String?            @db.Text
+  age              Int?
+  totpSecret       String?            @db.VarChar(255)
+  googleId         String?            @db.VarChar(255)
+  deletedBy        Int                @default(0)
+  isDeleted        Boolean            @default(false)
+  deletedAt        DateTime?          @db.Timestamp(0)
+  createdAt        DateTime           @default(now()) @db.Timestamp(0)
+  updatedAt        DateTime           @default(now()) @db.Timestamp(0)
+  password         String?            @db.VarChar(255)
+  Articles         Articles[]
+  ChatGroupMembers ChatGroupMembers[]
+  ChatGroups       ChatGroups[]
+  ChatMessages     ChatMessages[]
+  Orders           Orders[]
+}

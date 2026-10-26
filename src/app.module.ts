@@ -1,10 +1,26 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { PrismaModule } from './modules-system/prisma/prisma.module';
+import { AuthModule } from './modules-api/auth/auth.module';
+import { TokenModule } from './modules-system/token/token.module';
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { ProtectGuard } from './common/guard/protect.guard';
+import { RoleGuard } from './common/guard/role.guard';
+import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
+import { ResponseSuccessInterceptor } from './common/interceptors/response.interceptor';
+import { AllExceptionsFilter } from './common/filters/allExceptions.filter';
 
 @Module({
-  imports: [],
+  imports: [PrismaModule, AuthModule, TokenModule],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    { provide: APP_GUARD, useClass: ProtectGuard },
+    { provide: APP_GUARD, useClass: RoleGuard },
+    { provide: APP_INTERCEPTOR, useClass: LoggingInterceptor },
+    { provide: APP_INTERCEPTOR, useClass: ResponseSuccessInterceptor },
+    { provide: APP_FILTER, useClass: AllExceptionsFilter },
+  ],
 })
 export class AppModule {}

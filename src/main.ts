@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { PORT } from './common/constant/app.constant';
 import { ValidationPipe } from '@nestjs/common';
 import cookieParser from 'cookie-parser';
+import { AllExceptionsFilter } from './common/filters/allExceptions.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

@@ -7,117 +7,247 @@ datasource db {
   provider = "mysql"
 }
 
-model Articles {
-  id        Int       @id @default(autoincrement())
-  title     String?   @db.VarChar(255)
-  Content   String?   @db.Text
-  imageURL  String?   @db.VarChar(255)
-  views     Int       @default(0)
-  userId    Int?
-  deletedBy Int       @default(0)
-  isDeleted Boolean   @default(false)
-  deletedAt DateTime? @db.Timestamp(0)
-  createdAt DateTime  @default(now()) @db.Timestamp(0)
-  updatedAt DateTime  @default(now()) @db.Timestamp(0)
-  Users     Users?    @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Articles_ibfk_1")
+model categories {
+  id                 Int                  @id @default(autoincrement())
+  name               String               @db.VarChar(255)
+  deleted_by         Int?
+  is_deleted         Boolean              @default(false)
+  deleted_at         DateTime?            @db.Timestamp(0)
+  created_at         DateTime             @default(now()) @db.Timestamp(0)
+  updated_at         DateTime             @default(now()) @db.Timestamp(0)
+  users              users?               @relation(fields: [deleted_by], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_categories_deleted_by")
+  subcategory_groups subcategory_groups[]
 
-  @@index([userId], map: "userId")
+  @@index([deleted_by], map: "fk_categories_deleted_by")
 }
 
-model ChatGroupMembers {
-  id          Int         @id @default(autoincrement())
-  userId      Int?
-  chatGroupId Int?
-  deletedBy   Int         @default(0)
-  isDeleted   Boolean     @default(false)
-  deletedAt   DateTime?   @db.Timestamp(0)
-  createdAt   DateTime    @default(now()) @db.Timestamp(0)
-  updatedAt   DateTime    @default(now()) @db.Timestamp(0)
-  Users       Users?      @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "ChatGroupMembers_ibfk_1")
-  ChatGroups  ChatGroups? @relation(fields: [chatGroupId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "ChatGroupMembers_ibfk_2")
+model gigs {
+  id                           Int                    @id @default(autoincrement())
+  title                        String                 @db.VarChar(255)
+  price                        Int                    @db.UnsignedInt
+  rating                       Decimal                @default(0.00) @db.Decimal(3, 2)
+  review                       Int                    @default(0) @db.UnsignedInt
+  image                        String?                @db.Text
+  image_public_id              String?                @db.VarChar(255)
+  description                  String?                @db.Text
+  short_description            String?                @db.VarChar(255)
+  subcategory_id               Int
+  seller_id                    Int
+  moderation_status            gigs_moderation_status @default(Active)
+  deleted_by                   Int?
+  is_deleted                   Boolean                @default(false)
+  deleted_at                   DateTime?              @db.Timestamp(0)
+  created_at                   DateTime               @default(now()) @db.Timestamp(0)
+  updated_at                   DateTime               @default(now()) @db.Timestamp(0)
+  users_gigs_deleted_byTousers users?                 @relation("gigs_deleted_byTousers", fields: [deleted_by], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_gigs_deleted_by")
+  users_gigs_seller_idTousers  users                  @relation("gigs_seller_idTousers", fields: [seller_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_gigs_seller")
+  subcategories                subcategories          @relation(fields: [subcategory_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_gigs_subcategory")
+  orders                       orders[]
+  reports                      reports[]
+  reviews                      reviews[]
 
-  @@index([chatGroupId], map: "chatGroupId")
-  @@index([userId], map: "userId")
+  @@index([deleted_by], map: "fk_gigs_deleted_by")
+  @@index([seller_id], map: "fk_gigs_seller")
+  @@index([subcategory_id], map: "fk_gigs_subcategory")
 }
 
-model ChatGroups {
-  id               Int                @id @default(autoincrement())
-  name             String?            @db.VarChar(255)
-  ownerId          Int?
-  deletedBy        Int                @default(0)
-  isDeleted        Boolean            @default(false)
-  deletedAt        DateTime?          @db.Timestamp(0)
-  createdAt        DateTime           @default(now()) @db.Timestamp(0)
-  updatedAt        DateTime           @default(now()) @db.Timestamp(0)
-  ChatGroupMembers ChatGroupMembers[]
-  Users            Users?             @relation(fields: [ownerId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "ChatGroups_ibfk_1")
-  ChatMessages     ChatMessages[]
+model orders {
+  id                             Int           @id @default(autoincrement())
+  gig_id                         Int
+  buyer_id                       Int
+  ordered_at                     DateTime      @default(now()) @db.Timestamp(0)
+  status                         orders_status @default(Pending)
+  deleted_by                     Int?
+  is_deleted                     Boolean       @default(false)
+  deleted_at                     DateTime?     @db.Timestamp(0)
+  created_at                     DateTime      @default(now()) @db.Timestamp(0)
+  updated_at                     DateTime      @default(now()) @db.Timestamp(0)
+  users_orders_buyer_idTousers   users         @relation("orders_buyer_idTousers", fields: [buyer_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_orders_buyer")
+  users_orders_deleted_byTousers users?        @relation("orders_deleted_byTousers", fields: [deleted_by], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_orders_deleted_by")
+  gigs                           gigs          @relation(fields: [gig_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_orders_gig")
+  reviews                        reviews?
 
-  @@index([ownerId], map: "ownerId")
+  @@index([buyer_id], map: "fk_orders_buyer")
+  @@index([deleted_by], map: "fk_orders_deleted_by")
+  @@index([gig_id], map: "fk_orders_gig")
 }
 
-model ChatMessages {
-  id           Int         @id @default(autoincrement())
-  chatGroupId  Int?
-  userIdSender Int?
-  messageText  String?     @db.Text
-  deletedBy    Int         @default(0)
-  isDeleted    Boolean     @default(false)
-  deletedAt    DateTime?   @db.Timestamp(0)
-  createdAt    DateTime    @default(now()) @db.Timestamp(0)
-  updatedAt    DateTime    @default(now()) @db.Timestamp(0)
-  ChatGroups   ChatGroups? @relation(fields: [chatGroupId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "ChatMessages_ibfk_1")
-  Users        Users?      @relation(fields: [userIdSender], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "ChatMessages_ibfk_2")
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model reports {
+  id                                    Int            @id @default(autoincrement())
+  reporter_id                           Int
+  gig_id                                Int?
+  review_id                             Int?
+  reported_user_id                      Int?
+  reason                                reports_reason
+  description                           String?        @db.Text
+  status                                reports_status @default(Pending)
+  handled_by                            Int?
+  handled_at                            DateTime?      @db.Timestamp(0)
+  resolution_note                       String?        @db.Text
+  created_at                            DateTime       @default(now()) @db.Timestamp(0)
+  updated_at                            DateTime       @default(now()) @db.Timestamp(0)
+  gigs                                  gigs?          @relation(fields: [gig_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_reports_gig")
+  users_reports_handled_byTousers       users?         @relation("reports_handled_byTousers", fields: [handled_by], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_reports_handled_by")
+  users_reports_reported_user_idTousers users?         @relation("reports_reported_user_idTousers", fields: [reported_user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_reports_reported_user")
+  users_reports_reporter_idTousers      users          @relation("reports_reporter_idTousers", fields: [reporter_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_reports_reporter")
+  reviews                               reviews?       @relation(fields: [review_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_reports_review")
 
-  @@index([chatGroupId], map: "chatGroupId")
-  @@index([userIdSender], map: "userIdSender")
+  @@unique([reporter_id, gig_id], map: "uq_reports_reporter_gig")
+  @@unique([reporter_id, review_id], map: "uq_reports_reporter_review")
+  @@unique([reporter_id, reported_user_id], map: "uq_reports_reporter_user")
+  @@index([gig_id], map: "fk_reports_gig")
+  @@index([handled_by], map: "fk_reports_handled_by")
+  @@index([reported_user_id], map: "fk_reports_reported_user")
+  @@index([review_id], map: "fk_reports_review")
+  @@index([status, created_at], map: "idx_reports_status")
 }
 
-model Foods {
-  id          Int       @id @default(autoincrement())
-  name        String?   @db.VarChar(255)
-  description String?   @default("Chưa có thông tin") @db.VarChar(255)
-  deletedBy   Int       @default(0)
-  isDeleted   Boolean   @default(false)
-  deletedAt   DateTime? @db.Timestamp(0)
-  createdAt   DateTime  @default(now()) @db.Timestamp(0)
-  updatedAt   DateTime  @default(now()) @db.Timestamp(0)
-  Orders      Orders[]
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model reviews {
+  id                              Int                       @id @default(autoincrement())
+  gig_id                          Int
+  user_id                         Int
+  order_id                        Int                       @unique(map: "order_id")
+  content                         String?                   @db.Text
+  rating                          Int                       @db.UnsignedTinyInt
+  moderation_status               reviews_moderation_status @default(Active)
+  deleted_by                      Int?
+  is_deleted                      Boolean                   @default(false)
+  deleted_at                      DateTime?                 @db.Timestamp(0)
+  created_at                      DateTime                  @default(now()) @db.Timestamp(0)
+  updated_at                      DateTime                  @default(now()) @db.Timestamp(0)
+  reports                         reports[]
+  users_reviews_deleted_byTousers users?                    @relation("reviews_deleted_byTousers", fields: [deleted_by], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_reviews_deleted_by")
+  gigs                            gigs                      @relation(fields: [gig_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_reviews_gig")
+  orders                          orders                    @relation(fields: [order_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_reviews_order")
+  users_reviews_user_idTousers    users                     @relation("reviews_user_idTousers", fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_reviews_user")
+
+  @@index([deleted_by], map: "fk_reviews_deleted_by")
+  @@index([gig_id], map: "fk_reviews_gig")
+  @@index([user_id], map: "fk_reviews_user")
 }
 
-model Orders {
-  id        Int       @id @default(autoincrement())
-  userId    Int?
-  foodId    Int?
-  deletedBy Int       @default(0)
-  isDeleted Boolean   @default(false)
-  deletedAt DateTime? @db.Timestamp(0)
-  createdAt DateTime  @default(now()) @db.Timestamp(0)
-  updatedAt DateTime  @default(now()) @db.Timestamp(0)
-  Users     Users?    @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Orders_ibfk_1")
-  Foods     Foods?    @relation(fields: [foodId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Orders_ibfk_2")
+model subcategories {
+  id                   Int                @id @default(autoincrement())
+  name                 String             @db.VarChar(255)
+  subcategory_group_id Int
+  deleted_by           Int?
+  is_deleted           Boolean            @default(false)
+  deleted_at           DateTime?          @db.Timestamp(0)
+  created_at           DateTime           @default(now()) @db.Timestamp(0)
+  updated_at           DateTime           @default(now()) @db.Timestamp(0)
+  gigs                 gigs[]
+  users                users?             @relation(fields: [deleted_by], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_subcategories_deleted_by")
+  subcategory_groups   subcategory_groups @relation(fields: [subcategory_group_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_subcategories_group")
 
-  @@index([foodId], map: "foodId")
-  @@index([userId], map: "userId")
+  @@index([deleted_by], map: "fk_subcategories_deleted_by")
+  @@index([subcategory_group_id], map: "fk_subcategories_group")
 }
 
-model Users {
-  id               Int                @id @default(autoincrement())
-  email            String             @unique(map: "email") @db.VarChar(255)
-  fullName         String?            @db.VarChar(255)
-  avatar           String?            @db.Text
-  age              Int?
-  totpSecret       String?            @db.VarChar(255)
-  googleId         String?            @db.VarChar(255)
-  deletedBy        Int                @default(0)
-  isDeleted        Boolean            @default(false)
-  deletedAt        DateTime?          @db.Timestamp(0)
-  createdAt        DateTime           @default(now()) @db.Timestamp(0)
-  updatedAt        DateTime           @default(now()) @db.Timestamp(0)
-  password         String?            @db.VarChar(255)
-  Articles         Articles[]
-  ChatGroupMembers ChatGroupMembers[]
-  ChatGroups       ChatGroups[]
-  ChatMessages     ChatMessages[]
-  Orders           Orders[]
+model subcategory_groups {
+  id            Int             @id @default(autoincrement())
+  name          String          @db.VarChar(255)
+  category_id   Int
+  deleted_by    Int?
+  is_deleted    Boolean         @default(false)
+  deleted_at    DateTime?       @db.Timestamp(0)
+  created_at    DateTime        @default(now()) @db.Timestamp(0)
+  updated_at    DateTime        @default(now()) @db.Timestamp(0)
+  subcategories subcategories[]
+  categories    categories      @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_subcategory_groups_category")
+  users         users?          @relation(fields: [deleted_by], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_subcategory_groups_deleted_by")
+
+  @@index([category_id], map: "fk_subcategory_groups_category")
+  @@index([deleted_by], map: "fk_subcategory_groups_deleted_by")
+}
+
+model users {
+  id                                      Int                  @id @default(autoincrement())
+  email                                   String               @unique(map: "email") @db.VarChar(255)
+  name                                    String?              @db.VarChar(255)
+  password                                String?              @db.VarChar(255)
+  phone                                   String?              @db.VarChar(255)
+  birthday                                DateTime?            @db.Date
+  gender                                  users_gender?
+  role                                    users_role           @default(User)
+  account_status                          users_account_status @default(Active)
+  avatar                                  String?              @db.Text
+  avatar_public_id                        String?              @db.VarChar(255)
+  google_id                               String?              @unique(map: "google_id") @db.VarChar(255)
+  skill                                   String?              @db.VarChar(255)
+  certification                           String?              @db.VarChar(255)
+  deleted_by                              Int?
+  is_deleted                              Boolean              @default(false)
+  deleted_at                              DateTime?            @db.Timestamp(0)
+  created_at                              DateTime             @default(now()) @db.Timestamp(0)
+  updated_at                              DateTime             @default(now()) @db.Timestamp(0)
+  categories                              categories[]
+  gigs_gigs_deleted_byTousers             gigs[]               @relation("gigs_deleted_byTousers")
+  gigs_gigs_seller_idTousers              gigs[]               @relation("gigs_seller_idTousers")
+  orders_orders_buyer_idTousers           orders[]             @relation("orders_buyer_idTousers")
+  orders_orders_deleted_byTousers         orders[]             @relation("orders_deleted_byTousers")
+  reports_reports_handled_byTousers       reports[]            @relation("reports_handled_byTousers")
+  reports_reports_reported_user_idTousers reports[]            @relation("reports_reported_user_idTousers")
+  reports_reports_reporter_idTousers      reports[]            @relation("reports_reporter_idTousers")
+  reviews_reviews_deleted_byTousers       reviews[]            @relation("reviews_deleted_byTousers")
+  reviews_reviews_user_idTousers          reviews[]            @relation("reviews_user_idTousers")
+  subcategories                           subcategories[]
+  subcategory_groups                      subcategory_groups[]
+  users                                   users?               @relation("usersTousers", fields: [deleted_by], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_users_deleted_by")
+  other_users                             users[]              @relation("usersTousers")
+
+  @@index([deleted_by], map: "fk_users_deleted_by")
+}
+
+enum orders_status {
+  Pending
+  InProgress
+  Cancelled
+  Completed
+}
+
+enum reports_reason {
+  Spam
+  Inappropriate
+  Scam
+  Fake
+  Copyright
+  Other
+}
+
+enum reviews_moderation_status {
+  Active
+  UnderReview
+  Hidden
+}
+
+enum users_gender {
+  Male
+  Female
+}
+
+enum users_role {
+  SuperAdmin
+  Admin
+  User
+}
+
+enum reports_status {
+  Pending
+  Reviewing
+  Resolved
+  Rejected
+}
+
+enum users_account_status {
+  Active
+  Suspended
+  Banned
+}
+
+enum gigs_moderation_status {
+  Active
+  UnderReview
+  Hidden
 }

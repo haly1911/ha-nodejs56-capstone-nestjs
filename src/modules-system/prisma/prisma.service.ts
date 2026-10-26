@@ -15,7 +15,12 @@ export class PrismaService extends PrismaClient {
       port: Number(url.port),
       database: url.pathname.slice(1),
     });
-    super({ adapter });
+    super({
+      adapter,
+      omit: {
+        users: { password: true },
+      },
+    });
   }
 
   async onModuleInit() {

@@ -22,7 +22,7 @@ export class ProtectGuard implements CanActivate {
       context.getHandler(),
       context.getClass(),
     ]);
-    if (isPublic) return true; // 💡 See this condition
+    if (isPublic) return true;
 
     const req = context.switchToHttp().getRequest();
     const { accessToken } = req.cookies;
@@ -41,8 +41,6 @@ export class ProtectGuard implements CanActivate {
     ) {
       throw new UnauthorizedException('Invalid token');
     }
-
-    //xử lý phân quyền role nếu có (db) -> phát triển thêm
 
     req.user = userExist;
 

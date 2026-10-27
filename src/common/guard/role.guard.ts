@@ -11,15 +11,15 @@ import { ROLE_KEY } from '../decorators/role.decorator';
 export class RoleGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const role = this.reflector.getAllAndOverride<string>(ROLE_KEY, [
+    const roles = this.reflector.getAllAndOverride<string[]>(ROLE_KEY, [
       context.getHandler(),
       context.getClass(),
     ]);
-    
-    if (!role) return true;
+
+    if (!roles?.length) return true;
 
     const { user } = context.switchToHttp().getRequest();
-    if (!user || user.role !== role) {
+    if (!user || !roles.includes(user.role)) {
       throw new ForbiddenException('You do not have permission');
     }
     return true;

@@ -10,9 +10,12 @@ import { RoleGuard } from './common/guard/role.guard';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 import { ResponseSuccessInterceptor } from './common/interceptors/response.interceptor';
 import { AllExceptionsFilter } from './common/filters/allExceptions.filter';
+import { CategoryModule } from './modules-api/category/category.module';
+import { SubcategoryGroupModule } from './modules-api/subcategory-group/subcategory-group.module';
+import { SubcategoryModule } from './modules-api/subcategory/subcategory.module';
 
 @Module({
-  imports: [PrismaModule, AuthModule, TokenModule],
+  imports: [PrismaModule, AuthModule, TokenModule, CategoryModule, SubcategoryGroupModule, SubcategoryModule],
   controllers: [AppController],
   providers: [
     AppService,

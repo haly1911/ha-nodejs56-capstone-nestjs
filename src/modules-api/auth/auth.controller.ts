@@ -23,7 +23,6 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Post('signup')
-  @HttpCode(201)
   @ResponseMessage('Sign up successfully')
   @Public()
   async signUp(
@@ -68,7 +67,6 @@ export class AuthController {
   }
 
   @Get('get-info')
-  @HttpCode(200)
   @ResponseMessage('Get info successfully')
   async getInfo(@Req() req: Request) {
     const result = await this.authService.getInfo(req);

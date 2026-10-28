@@ -56,7 +56,7 @@ export class CategoryController {
   @Delete(':id')
   @Role('Admin', 'SuperAdmin')
   @ResponseMessage('Delete category successfully')
-  remove(
+  removeCategory(
     @Param('id', ParseIntPipe) id: number,
     @CurrentUser() user: { id: number },
   ) {

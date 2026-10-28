@@ -13,9 +13,10 @@ import { AllExceptionsFilter } from './common/filters/allExceptions.filter';
 import { CategoryModule } from './modules-api/category/category.module';
 import { SubcategoryGroupModule } from './modules-api/subcategory-group/subcategory-group.module';
 import { SubcategoryModule } from './modules-api/subcategory/subcategory.module';
+import { GigModule } from './modules-api/gig/gig.module';
 
 @Module({
-  imports: [PrismaModule, AuthModule, TokenModule, CategoryModule, SubcategoryGroupModule, SubcategoryModule],
+  imports: [PrismaModule, AuthModule, TokenModule, CategoryModule, SubcategoryGroupModule, SubcategoryModule, GigModule],
   controllers: [AppController],
   providers: [
     AppService,

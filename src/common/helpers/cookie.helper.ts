@@ -5,23 +5,24 @@ import {
   REFRESH_TOKEN_EXPIRES_IN,
 } from '../constant/app.constant';
 
+export const COOKIE_BASE_OPTIONS = {
+  httpOnly: true,
+  sameSite: 'lax' as const,
+  secure: NODE_ENV === 'production',
+};
+
 export const setAuthCookies = (
   res: Response,
   accessToken: string,
   refreshToken?: string,
 ) => {
-  const base = {
-    httpOnly: true,
-    sameSite: 'lax' as const,
-    secure: NODE_ENV === 'production',
-  };
   res.cookie('accessToken', accessToken, {
-    ...base,
+    ...COOKIE_BASE_OPTIONS,
     maxAge: ACCESS_TOKEN_EXPIRES_IN * 1000,
   });
   if (refreshToken) {
     res.cookie('refreshToken', refreshToken, {
-      ...base,
+      ...COOKIE_BASE_OPTIONS,
       maxAge: REFRESH_TOKEN_EXPIRES_IN * 1000,
     });
   }

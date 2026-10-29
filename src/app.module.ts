@@ -14,9 +14,10 @@ import { CategoryModule } from './modules-api/category/category.module';
 import { SubcategoryGroupModule } from './modules-api/subcategory-group/subcategory-group.module';
 import { SubcategoryModule } from './modules-api/subcategory/subcategory.module';
 import { GigModule } from './modules-api/gig/gig.module';
+import { UserModule } from './modules-api/user/user.module';
 
 @Module({
-  imports: [PrismaModule, AuthModule, TokenModule, CategoryModule, SubcategoryGroupModule, SubcategoryModule, GigModule],
+  imports: [PrismaModule, AuthModule, TokenModule, CategoryModule, SubcategoryGroupModule, SubcategoryModule, GigModule, UserModule],
   controllers: [AppController],
   providers: [
     AppService,

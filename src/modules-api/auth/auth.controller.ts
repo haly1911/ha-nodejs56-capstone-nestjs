@@ -14,7 +14,10 @@ import { Public } from '../../common/decorators/public.decorator';
 import type { Request, Response } from 'express';
 import { SignUpDto } from './dto/signup.dto';
 import { ResponseMessage } from '../../common/decorators/responseMessage.decorator';
-import { setAuthCookies } from '../../common/helpers/cookie.helper';
+import {
+  COOKIE_BASE_OPTIONS,
+  setAuthCookies,
+} from '../../common/helpers/cookie.helper';
 import { GoogleAuthGuard } from '../../common/guard/googleAuth.guard';
 import { FRONTEND_URL } from '../../common/constant/app.constant';
 
@@ -83,6 +86,15 @@ export class AuthController {
   ) {
     const result = await this.authService.refreshToken(req);
     setAuthCookies(res, result.accessToken);
+    return true;
+  }
+
+  @Post('signout')
+  @HttpCode(200)
+  @ResponseMessage('Sign out successfully')
+  signOut(@Res({ passthrough: true }) res: Response) {
+    res.clearCookie('accessToken', COOKIE_BASE_OPTIONS);
+    res.clearCookie('refreshToken', COOKIE_BASE_OPTIONS);
     return true;
   }
 }

@@ -16,6 +16,8 @@ import { GetGigsDto } from './dto/getGigs.dto';
 import { CurrentUser } from '../../common/decorators/currentUser.decorator';
 import { CreateGigDto } from './dto/createGig.dto';
 import { UpdateGigDto } from './dto/updateGig.dto';
+import { Role } from '../../common/decorators/role.decorator';
+import { UpdateModerationDto } from '../../common/dto/updateModeration.dto';
 
 @Controller('gig')
 export class GigController {
@@ -61,6 +63,16 @@ export class GigController {
     @CurrentUser() user: { id: number; role: string },
   ) {
     return this.gigService.updateGig(id, dto, user);
+  }
+
+  @Patch(':id/moderation')
+  @Role('SuperAdmin', 'Admin')
+  @ResponseMessage('Update gig moderation status successfully')
+  async updateModerationStatus(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateModerationDto,
+  ) {
+    return this.gigService.updateModerationStatus(id, dto);
   }
 
   @Delete(':id')

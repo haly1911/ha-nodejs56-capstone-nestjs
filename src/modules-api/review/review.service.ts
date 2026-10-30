@@ -14,6 +14,7 @@ import {
   buildPagination,
 } from '../../common/helpers/pagination.helper';
 import { PaginationDto } from '../../common/dto/pagination.dto';
+import { UpdateModerationDto } from '../../common/dto/updateModeration.dto';
 
 const REVIEW_SELECT = {
   id: true,
@@ -151,6 +152,22 @@ export class ReviewService {
     });
 
     return updatedReview;
+  }
+
+  async updateModerationStatus(id: number, dto: UpdateModerationDto) {
+    const review = await this.prisma.reviews.findFirst({
+      where: { id, is_deleted: false },
+    });
+    if (!review) throw new NotFoundException('Review not found');
+
+    await this.prisma.$transaction(async (tx) => {
+      await tx.reviews.update({
+        where: { id },
+        data: { moderation_status: dto.moderation_status },
+      });
+      await this.recalcGigRating(tx, review.gig_id);
+    });
+    return true;
   }
 
   async deleteReview(id: number, user: { id: number; role: string }) {

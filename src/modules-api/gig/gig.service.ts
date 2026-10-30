@@ -13,6 +13,7 @@ import {
 } from '../../common/helpers/pagination.helper';
 import { CreateGigDto } from './dto/createGig.dto';
 import { UpdateGigDto } from './dto/updateGig.dto';
+import { UpdateModerationDto } from '../../common/dto/updateModeration.dto';
 
 @Injectable()
 export class GigService {
@@ -219,6 +220,20 @@ export class GigService {
     });
 
     return updatedGig;
+  }
+
+  async updateModerationStatus(id: number, dto: UpdateModerationDto) {
+    const existingGig = await this.prisma.gigs.findFirst({
+      where: { id, is_deleted: false },
+    });
+    if (!existingGig) throw new NotFoundException('Gig not found');
+
+    await this.prisma.gigs.update({
+      where: { id },
+      data: { moderation_status: dto.moderation_status },
+    });
+
+    return true;
   }
 
   async deleteGig(id: number, user: { id: number; role: string }) {

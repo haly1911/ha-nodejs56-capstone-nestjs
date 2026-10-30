@@ -17,6 +17,8 @@ import { UpdateReviewDto } from './dto/updateReview.dto';
 import { Public } from '../../common/decorators/public.decorator';
 import { GetReviewsDto } from './dto/getReviews.dto';
 import { PaginationDto } from '../../common/dto/pagination.dto';
+import { Role } from '../../common/decorators/role.decorator';
+import { UpdateModerationDto } from '../../common/dto/updateModeration.dto';
 
 @Controller('review')
 export class ReviewController {
@@ -55,6 +57,16 @@ export class ReviewController {
     @CurrentUser() user: { id: number; role: string },
   ) {
     return this.reviewService.updateReview(id, dto, user.id);
+  }
+
+  @Patch(':id/moderation')
+  @Role('SuperAdmin', 'Admin')
+  @ResponseMessage('Update review moderation status successfully')
+  async updateModerationStatus(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateModerationDto,
+  ) {
+    return this.reviewService.updateModerationStatus(id, dto);
   }
 
   @Delete(':id')

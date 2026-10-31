@@ -9,7 +9,8 @@ export const ACCESS_TOKEN_SECRET_KEY = process.env
   .ACCESS_TOKEN_SECRET_KEY as string;
 export const REFRESH_TOKEN_SECRET_KEY = process.env
   .REFRESH_TOKEN_SECRET_KEY as string;
-export const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID  as string;
-export const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET  as string;
-export const GOOGLE_CALLBACK_URL = process.env.GOOGLE_CALLBACK_URL  as string;
-export const FRONTEND_URL = process.env.FRONTEND_URL  as string;
+export const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID as string;
+export const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET as string;
+export const GOOGLE_CALLBACK_URL = process.env.GOOGLE_CALLBACK_URL as string;
+export const FRONTEND_URL = process.env.FRONTEND_URL as string;
+export const MAX_FILE_SIZE = 2 * 1024 * 1024;

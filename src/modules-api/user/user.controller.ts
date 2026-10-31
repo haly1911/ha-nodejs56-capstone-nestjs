@@ -2,12 +2,17 @@ import {
   Body,
   Controller,
   Delete,
+  FileTypeValidator,
   Get,
+  HttpCode,
   Param,
+  ParseFilePipe,
   ParseIntPipe,
   Patch,
   Post,
   Query,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { Role } from '../../common/decorators/role.decorator';
@@ -19,6 +24,8 @@ import { ChangePasswordDto } from './dto/changePassword.dto';
 import { UpdateUserStatusDto } from './dto/updateUserStatus.dto';
 import { UpdateUserRoleDto } from './dto/updateUserRole.dto';
 import { CreateUserDto } from './dto/createUser.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { MAX_FILE_SIZE } from '../../common/constant/app.constant';
 
 @Controller('user')
 export class UserController {
@@ -40,6 +47,26 @@ export class UserController {
     @CurrentUser() user: { id: number; role: string },
   ) {
     return this.userService.changePassword(user.id, dto);
+  }
+
+  @Post('avatar')
+  @HttpCode(200)
+  @ResponseMessage('Upload avatar successfully')
+  @UseInterceptors(
+    FileInterceptor('file', { limits: { fileSize: MAX_FILE_SIZE } }),
+  )
+  async uploadAvatar(
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new FileTypeValidator({ fileType: /^image\/(jpeg|png|webp)$/ }),
+        ],
+      }),
+    )
+    file: Express.Multer.File,
+    @CurrentUser() user: { id: number; role: string },
+  ) {
+    return this.userService.uploadAvatar(user.id, file);
   }
 
   @Get()

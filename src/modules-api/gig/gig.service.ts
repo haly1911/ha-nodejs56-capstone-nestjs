@@ -14,10 +14,14 @@ import {
 import { CreateGigDto } from './dto/createGig.dto';
 import { UpdateGigDto } from './dto/updateGig.dto';
 import { UpdateModerationDto } from '../../common/dto/updateModeration.dto';
+import { CloudinaryService } from '../../modules-system/cloudinary/cloudinary.service';
 
 @Injectable()
 export class GigService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private cloudinary: CloudinaryService,
+  ) {}
 
   async findAll(query: GetGigsDto) {
     const {
@@ -220,6 +224,45 @@ export class GigService {
     });
 
     return updatedGig;
+  }
+
+  async uploadGigImage(
+    id: number,
+    userId: number,
+    file: {
+      buffer: Buffer;
+      mimetype: string;
+      size: number;
+      originalname: string;
+    },
+  ) {
+    const gig = await this.prisma.gigs.findUnique({
+      where: { id, is_deleted: false },
+    });
+    if (!gig) throw new NotFoundException('Gig not found');
+    if (gig.seller_id !== userId)
+      throw new ForbiddenException('You can only update your own gigs');
+
+    const uploaded = await this.cloudinary.uploadImage(
+      file.buffer,
+      'capstone_nodejs',
+    );
+
+    try {
+      await this.prisma.gigs.update({
+        where: { id },
+        data: {
+          image: uploaded.secure_url,
+          image_public_id: uploaded.public_id,
+        },
+      });
+    } catch (error) {
+      await this.cloudinary.deleteImage(uploaded.public_id);
+      throw error;
+    }
+
+    await this.cloudinary.deleteImage(gig?.image_public_id);
+    return { image: uploaded.secure_url };
   }
 
   async updateModerationStatus(id: number, dto: UpdateModerationDto) {

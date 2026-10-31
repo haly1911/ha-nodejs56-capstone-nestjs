@@ -2,12 +2,17 @@ import {
   Body,
   Controller,
   Delete,
+  FileTypeValidator,
   Get,
+  HttpCode,
   Param,
+  ParseFilePipe,
   ParseIntPipe,
   Patch,
   Post,
   Query,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { GigService } from './gig.service';
 import { Public } from '../../common/decorators/public.decorator';
@@ -18,6 +23,8 @@ import { CreateGigDto } from './dto/createGig.dto';
 import { UpdateGigDto } from './dto/updateGig.dto';
 import { Role } from '../../common/decorators/role.decorator';
 import { UpdateModerationDto } from '../../common/dto/updateModeration.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { MAX_FILE_SIZE } from '../../common/constant/app.constant';
 
 @Controller('gig')
 export class GigController {
@@ -63,6 +70,27 @@ export class GigController {
     @CurrentUser() user: { id: number; role: string },
   ) {
     return this.gigService.updateGig(id, dto, user);
+  }
+
+  @Post(':id/image')
+  @HttpCode(200)
+  @ResponseMessage('Upload gig image successfully')
+  @UseInterceptors(
+    FileInterceptor('file', { limits: { fileSize: MAX_FILE_SIZE } }),
+  )
+  async uploadGigImage(
+    @Param('id', ParseIntPipe) id: number,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new FileTypeValidator({ fileType: /^image\/(jpeg|png|webp)$/ }),
+        ],
+      }),
+    )
+    file: Express.Multer.File,
+    @CurrentUser() user: { id: number; role: string },
+  ) {
+    return this.gigService.uploadGigImage(id, user.id, file);
   }
 
   @Patch(':id/moderation')

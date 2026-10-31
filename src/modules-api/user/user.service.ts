@@ -18,6 +18,7 @@ import * as bcrypt from 'bcrypt';
 import { UpdateUserStatusDto } from './dto/updateUserStatus.dto';
 import { UpdateUserRoleDto } from './dto/updateUserRole.dto';
 import { CreateUserDto } from './dto/createUser.dto';
+import { CloudinaryService } from '../../modules-system/cloudinary/cloudinary.service';
 
 const USER_SELECT = {
   id: true,
@@ -36,7 +37,10 @@ const USER_SELECT = {
 
 @Injectable()
 export class UserService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private cloudinary: CloudinaryService,
+  ) {}
   private assertCanManage(
     actor: { id: number; role: string },
     target: { id: number; role: string },
@@ -82,6 +86,41 @@ export class UserService {
     });
 
     return true;
+  }
+
+  async uploadAvatar(
+    userId: number,
+    file: {
+      buffer: Buffer;
+      mimetype: string;
+      size: number;
+      originalname: string;
+    },
+  ) {
+    const currentUser = await this.prisma.users.findUnique({
+      where: { id: userId },
+      select: { avatar_public_id: true },
+    });
+    const uploaded = await this.cloudinary.uploadImage(
+      file.buffer,
+      'capstone_nodejs',
+    );
+
+    try {
+      await this.prisma.users.update({
+        where: { id: userId },
+        data: {
+          avatar: uploaded.secure_url,
+          avatar_public_id: uploaded.public_id,
+        },
+      });
+    } catch (error) {
+      await this.cloudinary.deleteImage(uploaded.public_id);
+      throw error;
+    }
+
+    await this.cloudinary.deleteImage(currentUser?.avatar_public_id);
+    return { avatar: uploaded.secure_url };
   }
 
   async findAll(query: GetUsersDto) {

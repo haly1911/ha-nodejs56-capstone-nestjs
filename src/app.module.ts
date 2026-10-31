@@ -18,9 +18,10 @@ import { UserModule } from './modules-api/user/user.module';
 import { OrderModule } from './modules-api/order/order.module';
 import { ReviewModule } from './modules-api/review/review.module';
 import { ReportModule } from './modules-api/report/report.module';
+import { CloudinaryModule } from './modules-system/cloudinary/cloudinary.module';
 
 @Module({
-  imports: [PrismaModule, AuthModule, TokenModule, CategoryModule, SubcategoryGroupModule, SubcategoryModule, GigModule, UserModule, OrderModule, ReviewModule, ReportModule],
+  imports: [PrismaModule, AuthModule, TokenModule, CategoryModule, SubcategoryGroupModule, SubcategoryModule, GigModule, UserModule, OrderModule, ReviewModule, ReportModule, CloudinaryModule],
   controllers: [AppController],
   providers: [
     AppService,

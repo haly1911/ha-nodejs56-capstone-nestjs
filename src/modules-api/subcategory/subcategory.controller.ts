@@ -17,7 +17,9 @@ import { Role } from '../../common/decorators/role.decorator';
 import { CreateSubcategoryDto } from './dto/createSubcategory.dto';
 import { UpdateSubcategoryDto } from './dto/updateSubcategory.dto';
 import { CurrentUser } from '../../common/decorators/currentUser.decorator';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Subcategory')
 @Controller('subcategory')
 export class SubcategoryController {
   constructor(private subcategoryService: SubcategoryService) {}

@@ -15,7 +15,9 @@ import { ResponseMessage } from '../../common/decorators/responseMessage.decorat
 import { GetOrdersDto } from './dto/getOrders.dto';
 import { Role } from '../../common/decorators/role.decorator';
 import { UpdateOrderStatusDto } from './dto/updateOrderStatus.dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Order')
 @Controller('order')
 export class OrderController {
   constructor(private orderService: OrderService) {}

@@ -20,7 +20,9 @@ import {
 } from '../../common/helpers/cookie.helper';
 import { GoogleAuthGuard } from '../../common/guard/googleAuth.guard';
 import { FRONTEND_URL } from '../../common/constant/app.constant';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}

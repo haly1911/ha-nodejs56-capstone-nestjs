@@ -15,7 +15,9 @@ import { CurrentUser } from '../../common/decorators/currentUser.decorator';
 import { GetReportsDto } from './dto/getReports.dto';
 import { Role } from '../../common/decorators/role.decorator';
 import { HandleReportDto } from './dto/handleReport.dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Report')
 @Controller('report')
 export class ReportController {
   constructor(private reportService: ReportService) {}

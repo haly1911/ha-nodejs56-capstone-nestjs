@@ -26,7 +26,9 @@ import { UpdateUserRoleDto } from './dto/updateUserRole.dto';
 import { CreateUserDto } from './dto/createUser.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { MAX_FILE_SIZE } from '../../common/constant/app.constant';
+import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('User')
 @Controller('user')
 export class UserController {
   constructor(private userService: UserService) {}
@@ -55,6 +57,13 @@ export class UserController {
   @UseInterceptors(
     FileInterceptor('file', { limits: { fileSize: MAX_FILE_SIZE } }),
   )
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: { file: { type: 'string', format: 'binary' } },
+    },
+  })
   async uploadAvatar(
     @UploadedFile(
       new ParseFilePipe({

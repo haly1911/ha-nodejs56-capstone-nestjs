@@ -19,7 +19,9 @@ import { GetReviewsDto } from './dto/getReviews.dto';
 import { PaginationDto } from '../../common/dto/pagination.dto';
 import { Role } from '../../common/decorators/role.decorator';
 import { UpdateModerationDto } from '../../common/dto/updateModeration.dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Review')
 @Controller('review')
 export class ReviewController {
   constructor(private reviewService: ReviewService) {}

@@ -25,7 +25,9 @@ import { Role } from '../../common/decorators/role.decorator';
 import { UpdateModerationDto } from '../../common/dto/updateModeration.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { MAX_FILE_SIZE } from '../../common/constant/app.constant';
+import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Gig')
 @Controller('gig')
 export class GigController {
   constructor(private gigService: GigService) {}
@@ -78,6 +80,13 @@ export class GigController {
   @UseInterceptors(
     FileInterceptor('file', { limits: { fileSize: MAX_FILE_SIZE } }),
   )
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: { file: { type: 'string', format: 'binary' } },
+    },
+  })
   async uploadGigImage(
     @Param('id', ParseIntPipe) id: number,
     @UploadedFile(

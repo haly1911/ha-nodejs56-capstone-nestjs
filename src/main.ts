@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { PORT } from './common/constant/app.constant';
 import { ValidationPipe } from '@nestjs/common';
 import cookieParser from 'cookie-parser';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -11,8 +12,16 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api');
   app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
-  // transform: true để @Type(() => Number) có tác dụng, nếu không page vẫn là chuỗi
-  // whitelist: true sẽ xóa mọi thuộc tính không có decorator của class-validator
+
+  const config = new DocumentBuilder()
+    .setTitle('Fiverr API')
+    .setDescription('Capstone NestJS')
+    .setVersion('0.1')
+    .addCookieAuth('accessToken')
+    .build();
+
+  const document = () => SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('docs', app, document);
 
   await app.listen(PORT as string, () => {
     console.log(`Gateway is running on port ${PORT}`);
